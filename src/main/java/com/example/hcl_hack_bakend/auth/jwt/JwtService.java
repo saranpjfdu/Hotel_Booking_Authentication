@@ -10,7 +10,6 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 @Service
 public class JwtService {
     private static final String SECRET =
@@ -18,21 +17,22 @@ public class JwtService {
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(String email){
+    // 🔥 UPDATED: include role
+    public String generateToken(String email, String role){
 
         Map<String,Object> claims = new HashMap<>();
+        claims.put("role", role); // ✅ add role
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
                 .compact();
     }
 
     private Claims extractAllClaims(String token){
-
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -42,6 +42,11 @@ public class JwtService {
 
     public String extractUsername(String token){
         return extractAllClaims(token).getSubject();
+    }
+
+    // ✅ NEW: extract role
+    public String extractRole(String token){
+        return (String) extractAllClaims(token).get("role");
     }
 
     private Date extractExpiration(String token){
@@ -54,14 +59,12 @@ public class JwtService {
 
     public boolean validateToken(String token, UserDetails userDetails){
 
-        System.out.println("DB username: " + userDetails.getUsername());
-        System.out.println("Token expired: " + isTokenExpired(token));
-
-
-
-
         String username = extractUsername(token);
+
+        System.out.println("DB username: " + userDetails.getUsername());
         System.out.println("Token username: " + username);
+        System.out.println("Token role: " + extractRole(token));
+        System.out.println("Token expired: " + isTokenExpired(token));
 
         return username.equals(userDetails.getUsername())
                 && !isTokenExpired(token);
