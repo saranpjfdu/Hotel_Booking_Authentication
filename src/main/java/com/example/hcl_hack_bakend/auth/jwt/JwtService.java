@@ -20,8 +20,10 @@ public class JwtService {
     // 🔥 UPDATED: include role
     public String generateToken(String email, String role){
 
+        System.out.println("ROLE GOING INTO TOKEN: " + role); // optional debug
+
         Map<String,Object> claims = new HashMap<>();
-        claims.put("role", role); // ✅ add role
+        claims.put("role", role); // ✅ MUST KEEP
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -31,7 +33,6 @@ public class JwtService {
                 .signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
                 .compact();
     }
-
     private Claims extractAllClaims(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(key)
