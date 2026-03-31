@@ -18,9 +18,11 @@ public class JwtService {
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(String email){
+    public String generateToken(String email, String role){
+        System.out.println("ROLE GOING INTO TOKEN: " + role);
 
         Map<String,Object> claims = new HashMap<>();
+        claims.put("role", role);
 
         return Jwts.builder()
                 .setClaims(claims)

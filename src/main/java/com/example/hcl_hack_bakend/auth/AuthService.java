@@ -7,6 +7,7 @@ import com.example.hcl_hack_bakend.common.dto.response.AuthResponseDTO;
 import com.example.hcl_hack_bakend.user.enums.Role;
 import com.example.hcl_hack_bakend.user.repo.UserRepo;
 import com.example.hcl_hack_bakend.user.entity.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
 
 @Service
 public class AuthService {
@@ -45,7 +45,15 @@ public class AuthService {
 
         if (authentication.isAuthenticated()) {
 
-            String token = jwtService.generateToken(loginDto.getEmail());
+            // ✅ FETCH USER FROM DB
+            User user = userRepo.findByEmail(loginDto.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // ✅ GENERATE TOKEN WITH ROLE
+            String token = jwtService.generateToken(
+                    user.getEmail(),
+                    user.getRole().name()
+            );
 
             return new AuthResponseDTO(
                     token,
@@ -71,7 +79,7 @@ public class AuthService {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .phoneNumber(dto.getPhoneNumber())
-                .password(passwordEncoder.encode(dto.getPassword()))
+                .password(passwordEncoder.encode(dto.getPassword())) // ✅ encoded
                 .role(Role.USER)
                 .enabled(true)
                 .accountNonLocked(true)
