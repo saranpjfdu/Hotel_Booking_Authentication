@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +36,7 @@ public class AuthService {
     // 🔐 LOGIN
     public AuthResponseDTO login(LoginRequestDTO loginDto) {
 
+        // 1. Authenticate the user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getEmail(),
@@ -44,20 +45,11 @@ public class AuthService {
         );
 
         if (authentication.isAuthenticated()) {
+            // 2. Safely retrieve the validated UserDetails from the authentication object
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-<<<<<<< HEAD
-            String token = jwtService.generateToken(loginDto.getRole(),loginDto.getEmail());
-=======
-            // ✅ FETCH USER FROM DB
-            User user = userRepo.findByEmail(loginDto.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            // ✅ GENERATE TOKEN WITH ROLE
-            String token = jwtService.generateToken(
-                    user.getEmail(),
-                    user.getRole().name()
-            );
->>>>>>> main
+            // 3. ✅ FIXED: Generate token using UserDetails, not the DTO
+            String token = jwtService.generateToken(userDetails);
 
             return new AuthResponseDTO(
                     token,
@@ -83,7 +75,7 @@ public class AuthService {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .phoneNumber(dto.getPhoneNumber())
-                .password(passwordEncoder.encode(dto.getPassword())) // ✅ encoded
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .role(Role.USER)
                 .enabled(true)
                 .accountNonLocked(true)

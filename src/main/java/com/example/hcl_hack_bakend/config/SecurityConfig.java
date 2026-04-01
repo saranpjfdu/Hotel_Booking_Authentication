@@ -34,10 +34,8 @@ import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
-
     @Autowired
     private MyUserDetailService myUserDetailService;
-
     @Autowired
     private Jwtfilter jwtfilter;
 
@@ -71,7 +69,6 @@ public class SecurityConfig {
 
                 .build();
     }
-
     // ✅ CORS Configuration
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -109,7 +106,6 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
