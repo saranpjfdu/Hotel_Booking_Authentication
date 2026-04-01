@@ -105,8 +105,7 @@ public class SecurityConfig {
                 new DaoAuthenticationProvider(myUserDetailService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
-    }
-    @Bean
+    }    @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
